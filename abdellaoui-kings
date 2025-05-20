@@ -1,0 +1,131 @@
+# abdellaoui-suilha 
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8" />
+<title>لعبة الثعبان - صلاح الدين عبدلاوي</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #eee;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0; padding: 20px;
+  }
+  h1 {
+    margin-bottom: 10px;
+    color: #4caf50;
+  }
+  canvas {
+    background-color: #222;
+    border: 3px solid #4caf50;
+    margin-top: 20px;
+  }
+  .instructions {
+    margin-top: 15px;
+    font-size: 18px;
+    color: #ccc;
+  }
+</style>
+</head>
+<body>
+<h1>لعبة الثعبان - صلاح الدين عبدلاوي</h1>
+<p class="instructions">استخدم الأسهم للتحكم بالثعبان. حاول ألا تصطدم بالجدار أو بنفسك!</p>
+<canvas id="game" width="400" height="400"></canvas>
+
+<script>
+  const canvas = document.getElementById('game');
+  const ctx = canvas.getContext('2d');
+
+  const box = 20;
+  const canvasSize = 400;
+
+  let snake = [];
+  snake[0] = { x: 9 * box, y: 10 * box };
+
+  let direction;
+  let food = {
+    x: Math.floor(Math.random() * 19 + 1) * box,
+    y: Math.floor(Math.random() * 19 + 1) * box
+  };
+
+  let score = 0;
+
+  document.addEventListener('keydown', directionControl);
+
+  function directionControl(event) {
+    if(event.key === 'ArrowLeft' && direction !== 'RIGHT') {
+      direction = 'LEFT';
+    } else if(event.key === 'ArrowUp' && direction !== 'DOWN') {
+      direction = 'UP';
+    } else if(event.key === 'ArrowRight' && direction !== 'LEFT') {
+      direction = 'RIGHT';
+    } else if(event.key === 'ArrowDown' && direction !== 'UP') {
+      direction = 'DOWN';
+    }
+  }
+
+  function collision(head, array) {
+    for(let i = 0; i < array.length; i++) {
+      if(head.x === array[i].x && head.y === array[i].y) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function draw() {
+    ctx.fillStyle = '#121212';
+    ctx.fillRect(0, 0, canvasSize, canvasSize);
+
+    for(let i = 0; i < snake.length; i++) {
+      ctx.fillStyle = (i === 0) ? '#4caf50' : '#81c784';
+      ctx.fillRect(snake[i].x, snake[i].y, box, box);
+      ctx.strokeStyle = '#1b5e20';
+      ctx.strokeRect(snake[i].x, snake[i].y, box, box);
+    }
+
+    ctx.fillStyle = '#e53935';
+    ctx.fillRect(food.x, food.y, box, box);
+
+    let snakeX = snake[0].x;
+    let snakeY = snake[0].y;
+
+    if(direction === 'LEFT') snakeX -= box;
+    if(direction === 'UP') snakeY -= box;
+    if(direction === 'RIGHT') snakeX += box;
+    if(direction === 'DOWN') snakeY += box;
+
+    if(snakeX === food.x && snakeY === food.y) {
+      score++;
+      food = {
+        x: Math.floor(Math.random() * 19 + 1) * box,
+        y: Math.floor(Math.random() * 19 + 1) * box
+      };
+    } else {
+      snake.pop();
+    }
+
+    let newHead = { x: snakeX, y: snakeY };
+
+    if(snakeX < 0 || snakeX >= canvasSize || snakeY < 0 || snakeY >= canvasSize || collision(newHead, snake)) {
+      alert('انتهت اللعبة! نتيجتك: ' + score);
+      snake = [{ x: 9 * box, y: 10 * box }];
+      direction = undefined;
+      score = 0;
+      return;
+    }
+
+    snake.unshift(newHead);
+
+    ctx.fillStyle = '#fff';
+    ctx.font = '20px Arial';
+    ctx.fillText('النقاط: ' + score, 10, 30);
+  }
+
+  setInterval(draw, 100);
+</script>
+</body>
+</html>
